@@ -1,12 +1,13 @@
 import { ConflictException, Injectable, InternalServerErrorException } from '@nestjs/common'
 import fs from 'fs'
-import { LlmService } from 'src/llm/services/llm.service'
 import { ProcessedInvoice } from 'src/llm/types/processed-invoice.type'
-import { InvoicesRepository } from '../repositories/invoices.repository'
 import { GetInvoicesDto } from '../dto/get-invoices.dto'
+import { LlmService } from 'src/llm/contracts/services/llm.contract'
+import { InvoicesRepository } from '../contracts/repositories/invoices.contract'
+import { InvoicesService } from '../contracts/services/invoices.contract'
 
 @Injectable()
-export class InvoicesService {
+export class InvoicesServiceImplementation implements InvoicesService {
   constructor(
     private readonly llmService: LlmService,
     private readonly invoicesRepository: InvoicesRepository

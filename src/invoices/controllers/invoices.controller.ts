@@ -1,8 +1,8 @@
 import { Controller, Get, Query } from '@nestjs/common'
-import { InvoicesService } from 'src/invoices/services/invoices.service'
 import { DashboardQueryDto } from '../dto/dashboard-query.dto'
 import { GetInvoicesDto } from '../dto/get-invoices.dto'
 import { Transactional } from 'src/shared/decorators/transaction'
+import { InvoicesService } from '../contracts/services/invoices.contract'
 
 @Controller()
 export class InvoicesController {

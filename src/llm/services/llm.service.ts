@@ -6,9 +6,10 @@ import fs from 'fs'
 import { LlmInvoiceResponse } from '../types/llm-invoice-response.type'
 import { safeJsonParse } from '../utils/safe-json-parse'
 import { PROMPT } from 'src/llm/utils/prompt'
+import { LlmService } from '../contracts/services/llm.contract'
 
 @Injectable()
-export class LlmService {
+export class LlmServiceImplementation implements LlmService {
   private readonly genAI: GoogleGenerativeAI
   private readonly fileManager: GoogleAIFileManager
 

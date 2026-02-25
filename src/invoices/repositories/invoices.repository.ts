@@ -5,9 +5,10 @@ import { CreateInvoiceDto } from "../dto/create-invoice.dto"
 import { FindInvoiceDto } from "../dto/find-invoice.dto"
 import { GetInvoicesDto } from "../dto/get-invoices.dto"
 import { PaginatedResponse } from "src/shared/dtos/paginated-response.dto"
+import { InvoicesRepository } from "../contracts/repositories/invoices.contract"
 
 @Injectable()
-export class InvoicesRepository extends BaseRepository {
+export class InvoicesRepositoryImplementation extends InvoicesRepository {
   constructor(prismaService: PrismaService) {
     super(prismaService)
   }

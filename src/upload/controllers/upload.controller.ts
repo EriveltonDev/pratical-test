@@ -8,7 +8,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express'
 import { diskStorage } from 'multer'
 import { extname } from 'path'
-import { InvoicesService } from 'src/invoices/services/invoices.service'
+import { InvoicesService } from 'src/invoices/contracts/services/invoices.contract'
 import { Transactional } from 'src/shared/decorators/transaction'
 
 @Controller('upload')

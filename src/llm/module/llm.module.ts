@@ -1,8 +1,14 @@
 import { Module } from '@nestjs/common';
-import { LlmService } from '../services/llm.service';
+import { LlmServiceImplementation } from '../services/llm.service';
+import { LlmService } from '../contracts/services/llm.contract';
 
 @Module({
-  providers: [LlmService],
+  providers: [
+    {
+      provide: LlmService,
+      useClass: LlmServiceImplementation,
+    }
+  ],
   exports: [LlmService],
 })
 export class LlmModule {}
