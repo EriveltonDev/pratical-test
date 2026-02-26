@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from "async_hooks"
-import { PrismaClient } from "generated/prisma/client"
+import { PrismaClient } from "src/shared/infra/db/prisma/generated/prisma/client"
 
 export interface TransactionContext {
   tx: Omit<

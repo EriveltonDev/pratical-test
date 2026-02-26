@@ -11,12 +11,12 @@ export class InvoicesController {
   @Get("dashboard")
   @Transactional()
   async getDashboardData(@Query() query: DashboardQueryDto) {
-    return this.invoicesService.getDashboardData(query.customerNumber)
+    return await this.invoicesService.getDashboardData(query.customerNumber)
   }
 
   @Get("invoices")
   @Transactional()
   async getInvoices(@Query() query: GetInvoicesDto) {
-    return this.invoicesService.getInvoices(query)
+    return await this.invoicesService.getInvoices(query)
   }
 }

@@ -21,3 +21,7 @@ export interface LlmInvoiceResponse {
     amount: number | null
   }
 }
+
+export abstract class LlmService {
+  abstract extractPdfData(filePath: string): Promise<LlmInvoiceResponse>
+}

@@ -40,8 +40,8 @@ export function Transactional<T = any>({
 
       return await prismaService.$transaction(
         async (tx) => {
-          return await TransactionManager.run({ tx }, () => {
-            return originalMethod.apply(this, args) as Promise<T>
+          return await TransactionManager.run({ tx }, async () => {
+            return await originalMethod.apply(this, args) as Promise<T>
           })
         },
         {

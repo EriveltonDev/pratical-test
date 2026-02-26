@@ -6,6 +6,8 @@ import { InvoicesRepositoryImplementation } from "../repositories/invoices.repos
 import { InvoicesController } from "../controllers/invoices.controller"
 import { InvoicesRepository } from "../contracts/repositories/invoices.contract"
 import { InvoicesService } from "../contracts/services/invoices.contract"
+import { InvoicesFacade } from "src/upload/contracts/facade/invoices.facade"
+import { InvoicesFacadeImplementation } from "../facade/invoices.facade"
 
 @Module({
   imports: [LlmModule, PrismaModule],
@@ -19,7 +21,13 @@ import { InvoicesService } from "../contracts/services/invoices.contract"
       provide: InvoicesRepository,
       useClass: InvoicesRepositoryImplementation,
     },
+    {
+      provide: InvoicesFacade,
+      useClass: InvoicesFacadeImplementation,
+    }
   ],
-  exports: [InvoicesService],
+  exports: [
+    InvoicesFacade
+  ],
 })
 export class InvoicesModule {}

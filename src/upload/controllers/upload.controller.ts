@@ -4,16 +4,17 @@ import {
   UploadedFile,
   UseInterceptors,
   BadRequestException,
+  ConflictException,
 } from "@nestjs/common"
 import { FileInterceptor } from "@nestjs/platform-express"
 import { diskStorage } from "multer"
 import { extname } from "path"
-import { InvoicesService } from "src/invoices/contracts/services/invoices.contract"
 import { Transactional } from "src/shared/decorators/transaction"
+import { InvoicesFacade } from "../contracts/facade/invoices.facade"
 
 @Controller("upload")
 export class UploadController {
-  constructor(private readonly invoicesService: InvoicesService) {}
+  constructor(private readonly invoicesFacade: InvoicesFacade) { }
 
   @Post("invoice-pdf")
   @UseInterceptors(
@@ -46,9 +47,12 @@ export class UploadController {
   @Transactional()
   async uploadPdf(@UploadedFile() file: Express.Multer.File) {
     try {
-      return this.invoicesService.processPdf(file.path)
+      return await this.invoicesFacade.processPdf(file.path)
     } catch (error) {
-      console.log("Error processing PDF:", error)
+      if (error instanceof ConflictException) {
+        throw error
+      }
+
       throw new BadRequestException("Failed to process PDF file")
     }
   }

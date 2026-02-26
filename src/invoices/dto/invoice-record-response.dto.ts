@@ -1,5 +1,18 @@
-import { ProcessedInvoiceModel, RawInvoiceModel } from "generated/prisma/models"
+export interface RawInvoiceRecordDto {
+  id: string
+  createdAt: Date
 
-export type RawInvoiceRecordDto = RawInvoiceModel
+  customerNumber: string
+  referenceMonth: string
 
-export type ProcessedInvoiceRecordDto = ProcessedInvoiceModel
+  electricEnergyKwh: number | null
+  electricEnergyAmount: number | null
+
+  energySceeeKwh: number | null
+  energySceeeAmount: number | null
+
+  compensatedEnergyGdIKwh: number | null
+  compensatedEnergyGdIAmount: number | null
+
+  publicLightingAmount: number | null
+}

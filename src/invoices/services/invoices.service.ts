@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from "@nestjs/common"
 import fs from "fs"
 import { ProcessedInvoice } from "src/llm/types/processed-invoice.type"
@@ -9,16 +10,16 @@ import { ProcessedInvoiceResponseDto } from "../dto/processed-invoice-response.d
 import { DashboardResponseDto } from "../dto/dashboard-response.dto"
 import { GetInvoicesDto } from "../dto/get-invoices.dto"
 import { PaginatedResponse } from "src/shared/dtos/paginated-response.dto"
-import { LlmService } from "src/llm/contracts/services/llm.contract"
 import { InvoicesRepository } from "../contracts/repositories/invoices.contract"
 import { InvoicesService } from "../contracts/services/invoices.contract"
+import { LlmService } from "../contracts/services/llm.contract"
 
 @Injectable()
 export class InvoicesServiceImplementation implements InvoicesService {
   constructor(
     private readonly llmService: LlmService,
     private readonly invoicesRepository: InvoicesRepository,
-  ) {}
+  ) { }
 
   async processPdf(filePath: string): Promise<ProcessedInvoiceResponseDto> {
     try {
@@ -96,32 +97,24 @@ export class InvoicesServiceImplementation implements InvoicesService {
   async getDashboardData(
     customerNumber: string,
   ): Promise<DashboardResponseDto> {
-    const invoices =
-      await this.invoicesRepository.getDashboardData(customerNumber)
+    const hasInvoice = await this.invoicesRepository.findInvoiceByCustomerNumber(customerNumber)
 
-    const energy = invoices.reduce(
-      (acc, inv) => ({
-        totalEnergyConsumptionKwh:
-          acc.totalEnergyConsumptionKwh + inv.totalEnergyConsumptionKwh,
-        compensatedEnergyKwh:
-          acc.compensatedEnergyKwh + inv.compensatedEnergyKwh,
-      }),
-      { totalEnergyConsumptionKwh: 0, compensatedEnergyKwh: 0 },
-    )
+    if (!hasInvoice) {
+      throw new NotFoundException("No invoices found for this customer")
+    }
 
-    const financial = invoices.reduce(
-      (acc, inv) => ({
-        totalAmountWithoutGd: parseFloat(
-          (acc.totalAmountWithoutGd + inv.totalAmountWithoutGd).toFixed(2),
-        ),
-        gdSavings: parseFloat(
-          (acc.gdSavings + Math.abs(inv.gdSavings)).toFixed(2),
-        ),
-      }),
-      { totalAmountWithoutGd: 0, gdSavings: 0 },
-    )
+    const agg = await this.invoicesRepository.getDashboardData(customerNumber)
 
-    return { energy, financial }
+    return {
+      energy: {
+        totalEnergyConsumptionKwh: agg.totalEnergyConsumptionKwh,
+        compensatedEnergyKwh: agg.compensatedEnergyKwh,
+      },
+      financial: {
+        totalAmountWithoutGd: Number(agg.totalAmountWithoutGd.toFixed(2)),
+        gdSavings: Number(Math.abs(agg.gdSavings).toFixed(2)),
+      },
+    }
   }
 
   async getInvoices(

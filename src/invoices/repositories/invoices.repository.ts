@@ -4,11 +4,10 @@ import { CreateInvoiceDto } from "../dto/create-invoice.dto"
 import { FindInvoiceDto } from "../dto/find-invoice.dto"
 import { GetInvoicesDto } from "../dto/get-invoices.dto"
 import { PaginatedResponse } from "src/shared/dtos/paginated-response.dto"
-import {
-  RawInvoiceRecordDto,
-  ProcessedInvoiceRecordDto,
-} from "../dto/invoice-record-response.dto"
 import { InvoicesRepository } from "../contracts/repositories/invoices.contract"
+import { RawInvoiceRecordDto } from "../dto/invoice-record-response.dto"
+import { DashboardAggregateRecordDto } from "../dto/dashboard-invoices.dto"
+import { ProcessedInvoiceRecordDto } from "../dto/processed-invoices-response.dto"
 
 @Injectable()
 export class InvoicesRepositoryImplementation extends InvoicesRepository {
@@ -53,14 +52,35 @@ export class InvoicesRepositoryImplementation extends InvoicesRepository {
     })
   }
 
-  async getDashboardData(
-    customerNumber: string,
-  ): Promise<ProcessedInvoiceRecordDto[]> {
-    return await this.prisma.processedInvoice.findMany({
+  async findInvoiceByCustomerNumber(customerNumber: string): Promise<RawInvoiceRecordDto | null> {
+    return await this.prisma.rawInvoice.findFirst({
       where: {
-        customerNumber: customerNumber,
+        customerNumber,
       },
     })
+  }
+
+  async getDashboardData(
+    customerNumber: string,
+  ): Promise<DashboardAggregateRecordDto> {
+    const result = await this.prisma.processedInvoice.aggregate({
+      where: {
+        customerNumber,
+      },
+      _sum: {
+        totalEnergyConsumptionKwh: true,
+        compensatedEnergyKwh: true,
+        totalAmountWithoutGd: true,
+        gdSavings: true,
+      },
+    })
+
+    return {
+      totalEnergyConsumptionKwh: result._sum.totalEnergyConsumptionKwh ?? 0,
+      compensatedEnergyKwh: result._sum.compensatedEnergyKwh ?? 0,
+      totalAmountWithoutGd: result._sum.totalAmountWithoutGd ?? 0,
+      gdSavings: result._sum.gdSavings ?? 0,
+    }
   }
 
   async getInvoices(

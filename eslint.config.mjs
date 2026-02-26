@@ -26,6 +26,8 @@ export default tseslint.config(
   },
   {
     rules: {
+      'object-curly-spacing': 'off',
+      '@typescript-eslint/object-curly-spacing': ['error', 'always'],
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-call': 'off',
@@ -36,6 +38,7 @@ export default tseslint.config(
           semi: false,
           singleQuote: false,
           endOfLine: 'auto',
+          bracketSpacing: true,
         },
       ],
     },
