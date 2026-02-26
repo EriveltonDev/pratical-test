@@ -36,54 +36,34 @@ export class LlmServiceImplementation implements LlmService {
 
   async extractPdfData(filePath: string): Promise<LlmInvoiceResponse> {
     try {
-      // const uploadResponse = await this.fileManager.uploadFile(filePath, {
-      //   mimeType: "application/pdf",
-      //   displayName: "PDF Invoice Document",
-      // })
+      const uploadResponse = await this.fileManager.uploadFile(filePath, {
+        mimeType: "application/pdf",
+        displayName: "PDF Invoice Document",
+      })
 
-      // const model = this.genAI.getGenerativeModel({
-      //   model: this.model || "gemini-2.0-flash-lite",
-      // })
+      const model = this.genAI.getGenerativeModel({
+        model: this.model || "gemini-2.5-flash-lite",
+      })
 
-      // const result = await model.generateContent([
-      //   {
-      //     fileData: {
-      //       mimeType: uploadResponse.file.mimeType,
-      //       fileUri: uploadResponse.file.uri,
-      //     },
-      //   },
-      //   { text: PROMPT },
-      // ])
-
-      // const llmData = safeJsonParse<LlmInvoiceResponse>(result.response.text())
-
-      // if (!llmData.customerNumber || !llmData.referenceMonth) {
-      //   throw new InternalServerErrorException(
-      //     "Required invoice identification data was not found",
-      //   )
-      // }
-
-      // return llmData
-
-      return {
-        "customerNumber": "123456",
-        "referenceMonth": "2026-02",
-        "electricEnergy": {
-          "kwh": 350.5,
-          "amount": 512.75
+      const result = await model.generateContent([
+        {
+          fileData: {
+            mimeType: uploadResponse.file.mimeType,
+            fileUri: uploadResponse.file.uri,
+          },
         },
-        "energySceeeWithoutIcms": {
-          "kwh": 120.3,
-          "amount": 180.45
-        },
-        "compensatedEnergyGdI": {
-          "kwh": 50.0,
-          "amount": 75.0
-        },
-        "publicLightingContribution": {
-          "amount": 20.0
-        }
+        { text: PROMPT },
+      ])
+
+      const llmData = safeJsonParse<LlmInvoiceResponse>(result.response.text())
+
+      if (!llmData.customerNumber || !llmData.referenceMonth) {
+        throw new InternalServerErrorException(
+          "Required invoice identification data was not found",
+        )
       }
+
+      return llmData
     } catch (error) {
       console.log("Error in LLM processing:", error)
       if (error instanceof InternalServerErrorException) {
