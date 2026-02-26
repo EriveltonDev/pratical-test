@@ -1,0 +1,25 @@
+model RawInvoice {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+
+  customerNumber String
+  referenceMonth String
+
+  electricEnergyKwh    Float?
+  electricEnergyAmount Float?
+
+  energySceeeKwh    Float?
+  energySceeeAmount Float?
+
+  compensatedEnergyGdIKwh    Float?
+  compensatedEnergyGdIAmount Float?
+
+  publicLightingAmount Float?
+
+  processedInvoice ProcessedInvoice?
+
+  @@unique([customerNumber, referenceMonth])
+  @@index([customerNumber])
+  @@index([referenceMonth])
+  @@map("raw_invoices")
+}

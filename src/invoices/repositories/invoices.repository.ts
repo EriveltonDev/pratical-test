@@ -17,7 +17,7 @@ export class InvoicesRepositoryImplementation extends InvoicesRepository {
   }
 
   async createInvoice(data: CreateInvoiceDto): Promise<RawInvoiceRecordDto> {
-    return this.prisma.rawInvoice.create({
+    return await this.prisma.rawInvoice.create({
       data: {
         customerNumber: data.customerNumber,
         referenceMonth: data.referenceMonth,

@@ -1,0 +1,19 @@
+model ProcessedInvoice {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+
+  customerNumber String
+  referenceMonth String
+
+  totalEnergyConsumptionKwh Float
+  compensatedEnergyKwh      Float
+  totalAmountWithoutGd      Float
+  gdSavings                 Float
+
+  rawInvoiceId String     @unique
+  rawInvoice   RawInvoice @relation(fields: [rawInvoiceId], references: [id])
+
+  @@index([customerNumber])
+  @@index([referenceMonth])
+  @@map("processed_invoices")
+}
