@@ -30,6 +30,8 @@ model RawInvoice {
   @@unique([customerNumber, referenceMonth])
   @@index([customerNumber])
   @@index([referenceMonth])
+
+  @@map("raw_invoices")
 }
 
 model ProcessedInvoice {
@@ -49,4 +51,6 @@ model ProcessedInvoice {
 
   @@index([customerNumber])
   @@index([referenceMonth])
+
+  @@map("processed_invoices")
 }
