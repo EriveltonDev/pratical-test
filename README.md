@@ -21,7 +21,10 @@ Backend para processar faturas de energia elétrica com IA, extraindo dados de P
 npm run docker:rebuild
 ```
 
-A API estará disponível em: **http://localhost:3000/api/docs** (Swagger)
+### Acessar a API
+
+- **Local**: http://localhost:3000/api/docs (Swagger)
+- **Produção**: https://lumi-pratical-test.onrender.com/api/docs (Swagger)
 
 ---
 
