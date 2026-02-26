@@ -69,7 +69,15 @@ PostgreSQL
 ```
 
 **Benefício**: Testes isolados por camada, fácil manutenção
+> **Por que essa arquitetura?**
+>
+> Optei por um modelo em camadas para **baixo acoplamento** entre componentes e maior clareza das responsabilidades. Isso facilita a manutenção e a substituição de partes da aplicação sem causar efeitos colaterais.
 
+### 2. **Escolhas Tecnológicas**
+
+- **NestJS**: trouxe aceleração no desenvolvimento graças a muita funcionalidade pronta, suporte a DI e integração com testes/Swagger.
+- **Gemini (Google Generative AI)**: selecionei por oferecer **free tier**, simplificando o uso em um projeto de prova de conceito sem custos iniciais.
+- **Prisma ORM**: é rápido, seguro e simples de usar, tornando as consultas ao banco de dados mais confiáveis e produtivas.
 ### 2. **Inversão de Dependência via Contratos**
 
 Cada camada define um contrato abstrato, a implementação é injetada:
