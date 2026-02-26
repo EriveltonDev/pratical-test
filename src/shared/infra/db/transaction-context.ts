@@ -2,7 +2,10 @@ import { AsyncLocalStorage } from "async_hooks"
 import { PrismaClient } from "generated/prisma/client"
 
 export interface TransactionContext {
-  tx: Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
+  tx: Omit<
+    PrismaClient,
+    "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends"
+  >
 }
 
 export class TransactionManager {

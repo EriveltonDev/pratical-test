@@ -1,10 +1,13 @@
 import { Injectable } from "@nestjs/common"
-import { BaseRepository } from "src/shared/infra/db/base-repository"
 import { PrismaService } from "src/shared/infra/db/prisma.service"
 import { CreateInvoiceDto } from "../dto/create-invoice.dto"
 import { FindInvoiceDto } from "../dto/find-invoice.dto"
 import { GetInvoicesDto } from "../dto/get-invoices.dto"
 import { PaginatedResponse } from "src/shared/dtos/paginated-response.dto"
+import {
+  RawInvoiceRecordDto,
+  ProcessedInvoiceRecordDto,
+} from "../dto/invoice-record-response.dto"
 import { InvoicesRepository } from "../contracts/repositories/invoices.contract"
 
 @Injectable()
@@ -13,7 +16,7 @@ export class InvoicesRepositoryImplementation extends InvoicesRepository {
     super(prismaService)
   }
 
-  async createInvoice(data: CreateInvoiceDto) {
+  async createInvoice(data: CreateInvoiceDto): Promise<RawInvoiceRecordDto> {
     return this.prisma.rawInvoice.create({
       data: {
         customerNumber: data.customerNumber,
@@ -32,34 +35,38 @@ export class InvoicesRepositoryImplementation extends InvoicesRepository {
             gdSavings: data.compensatedEnergyGdIAmount ?? 0,
             referenceMonth: data.referenceMonth,
             totalAmountWithoutGd: data.totalAmountWithoutGd ?? 0,
-            totalEnergyConsumptionKwh: data.totalEnergyConsumptionKwh ?? 0
-          }
-        }
-      }
-    })
-  }
-
-  async findInvoice(data: FindInvoiceDto) {
-    return await this.prisma.rawInvoice.findUnique({
-      where: {
-        customerNumber_referenceMonth: {
-          customerNumber: data.customerNumber,
-          referenceMonth: data.referenceMonth
-        }
+            totalEnergyConsumptionKwh: data.totalEnergyConsumptionKwh ?? 0,
+          },
+        },
       },
     })
   }
 
-  async getDashboardData(customerNumber: string) {
-    return await this.prisma.processedInvoice.findMany({
+  async findInvoice(data: FindInvoiceDto): Promise<RawInvoiceRecordDto | null> {
+    return await this.prisma.rawInvoice.findUnique({
       where: {
-        customerNumber: customerNumber
-      }
+        customerNumber_referenceMonth: {
+          customerNumber: data.customerNumber,
+          referenceMonth: data.referenceMonth,
+        },
+      },
     })
   }
-  
-  async getInvoices(query: GetInvoicesDto): Promise<PaginatedResponse<any>> {
-    const where: any = {}
+
+  async getDashboardData(
+    customerNumber: string,
+  ): Promise<ProcessedInvoiceRecordDto[]> {
+    return await this.prisma.processedInvoice.findMany({
+      where: {
+        customerNumber: customerNumber,
+      },
+    })
+  }
+
+  async getInvoices(
+    query: GetInvoicesDto,
+  ): Promise<PaginatedResponse<ProcessedInvoiceRecordDto>> {
+    const where: { customerNumber?: string; referenceMonth?: string } = {}
 
     const page = query.page ?? 1
     const limit = query.limit ?? 10
@@ -78,8 +85,8 @@ export class InvoicesRepositoryImplementation extends InvoicesRepository {
       skip,
       take: limit,
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: "desc",
+      },
     })
 
     const total = await this.prisma.processedInvoice.count({ where })
@@ -90,8 +97,8 @@ export class InvoicesRepositoryImplementation extends InvoicesRepository {
         total: total,
         page,
         limit,
-        totalPages: Math.ceil(total / limit)
-      }
+        totalPages: Math.ceil(total / limit),
+      },
     }
   }
 }

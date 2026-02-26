@@ -3,10 +3,20 @@ import { FindInvoiceDto } from "src/invoices/dto/find-invoice.dto"
 import { GetInvoicesDto } from "src/invoices/dto/get-invoices.dto"
 import { PaginatedResponse } from "src/shared/dtos/paginated-response.dto"
 import { BaseRepository } from "src/shared/infra/db/base-repository"
+import {
+  RawInvoiceRecordDto,
+  ProcessedInvoiceRecordDto,
+} from "src/invoices/dto/invoice-record-response.dto"
 
 export abstract class InvoicesRepository extends BaseRepository {
-  abstract createInvoice(data: CreateInvoiceDto): Promise<any>
-  abstract findInvoice(data: FindInvoiceDto): Promise<any>
-  abstract getDashboardData(customerNumber: string): Promise<any>
-  abstract getInvoices(query: GetInvoicesDto): Promise<PaginatedResponse<any>>
+  abstract createInvoice(data: CreateInvoiceDto): Promise<RawInvoiceRecordDto>
+  abstract findInvoice(
+    data: FindInvoiceDto,
+  ): Promise<RawInvoiceRecordDto | null>
+  abstract getDashboardData(
+    customerNumber: string,
+  ): Promise<ProcessedInvoiceRecordDto[]>
+  abstract getInvoices(
+    query: GetInvoicesDto,
+  ): Promise<PaginatedResponse<ProcessedInvoiceRecordDto>>
 }

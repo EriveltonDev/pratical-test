@@ -1,13 +1,13 @@
-import { Type } from 'class-transformer'
-import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator'
+import { Type } from "class-transformer"
+import { IsInt, IsOptional, IsString, Max, Min } from "class-validator"
 
 export class GetInvoicesDto {
   @IsOptional()
-  @IsString({ message: 'customerNumber must be a string' })
+  @IsString({ message: "customerNumber must be a string" })
   customerNumber?: string
 
   @IsOptional()
-  @IsString({ message: 'referenceMonth must be a string' })
+  @IsString({ message: "referenceMonth must be a string" })
   referenceMonth?: string
 
   @IsOptional()

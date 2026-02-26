@@ -1,19 +1,26 @@
-import { ConflictException, Injectable, InternalServerErrorException } from '@nestjs/common'
-import fs from 'fs'
-import { ProcessedInvoice } from 'src/llm/types/processed-invoice.type'
-import { GetInvoicesDto } from '../dto/get-invoices.dto'
-import { LlmService } from 'src/llm/contracts/services/llm.contract'
-import { InvoicesRepository } from '../contracts/repositories/invoices.contract'
-import { InvoicesService } from '../contracts/services/invoices.contract'
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+} from "@nestjs/common"
+import fs from "fs"
+import { ProcessedInvoice } from "src/llm/types/processed-invoice.type"
+import { ProcessedInvoiceResponseDto } from "../dto/processed-invoice-response.dto"
+import { DashboardResponseDto } from "../dto/dashboard-response.dto"
+import { GetInvoicesDto } from "../dto/get-invoices.dto"
+import { PaginatedResponse } from "src/shared/dtos/paginated-response.dto"
+import { LlmService } from "src/llm/contracts/services/llm.contract"
+import { InvoicesRepository } from "../contracts/repositories/invoices.contract"
+import { InvoicesService } from "../contracts/services/invoices.contract"
 
 @Injectable()
 export class InvoicesServiceImplementation implements InvoicesService {
   constructor(
     private readonly llmService: LlmService,
-    private readonly invoicesRepository: InvoicesRepository
+    private readonly invoicesRepository: InvoicesRepository,
   ) {}
 
-  async processPdf(filePath: string): Promise<ProcessedInvoice> {
+  async processPdf(filePath: string): Promise<ProcessedInvoiceResponseDto> {
     try {
       const llmData = await this.llmService.extractPdfData(filePath)
 
@@ -24,7 +31,7 @@ export class InvoicesServiceImplementation implements InvoicesService {
 
       if (alreadyExists) {
         throw new ConflictException(
-          'Invoice for this customer and reference month already exists',
+          "Invoice for this customer and reference month already exists",
         )
       }
 
@@ -32,17 +39,14 @@ export class InvoicesServiceImplementation implements InvoicesService {
         (llmData.electricEnergy.kwh ?? 0) +
         (llmData.energySceeeWithoutIcms.kwh ?? 0)
 
-      const compensatedEnergyKwh =
-        llmData.compensatedEnergyGdI.kwh ?? 0
+      const compensatedEnergyKwh = llmData.compensatedEnergyGdI.kwh ?? 0
 
       const totalAmountWithoutGd =
         (llmData.electricEnergy.amount ?? 0) +
         (llmData.energySceeeWithoutIcms.amount ?? 0) +
         (llmData.publicLightingContribution.amount ?? 0)
 
-      const gdSavings = Math.abs(
-        llmData.compensatedEnergyGdI.amount ?? 0,
-      )
+      const gdSavings = Math.abs(llmData.compensatedEnergyGdI.amount ?? 0)
 
       const processedInvoice: ProcessedInvoice = {
         customerNumber: llmData.customerNumber as string,
@@ -66,18 +70,21 @@ export class InvoicesServiceImplementation implements InvoicesService {
         energySceeeKwh: llmData.energySceeeWithoutIcms.kwh ?? 0,
         publicLightingAmount: llmData.publicLightingContribution.amount ?? 0,
         totalAmountWithoutGd,
-        totalEnergyConsumptionKwh
+        totalEnergyConsumptionKwh,
       })
 
       return processedInvoice
     } catch (error) {
-      console.log('Error processing PDF invoice:', error)
-      if (error instanceof ConflictException || error instanceof InternalServerErrorException) {
+      console.log("Error processing PDF invoice:", error)
+      if (
+        error instanceof ConflictException ||
+        error instanceof InternalServerErrorException
+      ) {
         throw error
       }
 
       throw new InternalServerErrorException(
-        'Error while processing PDF invoice with Gemini',
+        "Error while processing PDF invoice with Gemini",
       )
     } finally {
       if (fs.existsSync(filePath)) {
@@ -86,21 +93,30 @@ export class InvoicesServiceImplementation implements InvoicesService {
     }
   }
 
-  async getDashboardData(customerNumber: string) {
-    const invoices = await this.invoicesRepository.getDashboardData(customerNumber)
-    
+  async getDashboardData(
+    customerNumber: string,
+  ): Promise<DashboardResponseDto> {
+    const invoices =
+      await this.invoicesRepository.getDashboardData(customerNumber)
+
     const energy = invoices.reduce(
       (acc, inv) => ({
-        totalEnergyConsumptionKwh: acc.totalEnergyConsumptionKwh + inv.totalEnergyConsumptionKwh,
-        compensatedEnergyKwh: acc.compensatedEnergyKwh + inv.compensatedEnergyKwh,
+        totalEnergyConsumptionKwh:
+          acc.totalEnergyConsumptionKwh + inv.totalEnergyConsumptionKwh,
+        compensatedEnergyKwh:
+          acc.compensatedEnergyKwh + inv.compensatedEnergyKwh,
       }),
       { totalEnergyConsumptionKwh: 0, compensatedEnergyKwh: 0 },
     )
 
     const financial = invoices.reduce(
       (acc, inv) => ({
-        totalAmountWithoutGd: parseFloat((acc.totalAmountWithoutGd + inv.totalAmountWithoutGd).toFixed(2)),
-        gdSavings: parseFloat((acc.gdSavings + Math.abs(inv.gdSavings)).toFixed(2)),
+        totalAmountWithoutGd: parseFloat(
+          (acc.totalAmountWithoutGd + inv.totalAmountWithoutGd).toFixed(2),
+        ),
+        gdSavings: parseFloat(
+          (acc.gdSavings + Math.abs(inv.gdSavings)).toFixed(2),
+        ),
       }),
       { totalAmountWithoutGd: 0, gdSavings: 0 },
     )
@@ -108,7 +124,9 @@ export class InvoicesServiceImplementation implements InvoicesService {
     return { energy, financial }
   }
 
-  async getInvoices(query: GetInvoicesDto) {
+  async getInvoices(
+    query: GetInvoicesDto,
+  ): Promise<PaginatedResponse<ProcessedInvoiceResponseDto>> {
     return this.invoicesRepository.getInvoices(query)
   }
 }
