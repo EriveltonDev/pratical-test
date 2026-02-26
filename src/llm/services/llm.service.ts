@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common"
+import { Injectable, InternalServerErrorException, BadRequestException } from "@nestjs/common"
 import { GoogleGenerativeAI } from "@google/generative-ai"
 import { GoogleAIFileManager } from "@google/generative-ai/server"
 import fs from "fs"
@@ -57,25 +57,30 @@ export class LlmServiceImplementation implements LlmService {
 
       const llmData = safeJsonParse<LlmInvoiceResponse>(result.response.text())
 
-      if (!llmData.customerNumber || !llmData.referenceMonth) {
-        throw new InternalServerErrorException(
-          "Required invoice identification data was not found",
-        )
-      }
+      // Validar se o PDF é uma fatura válida
+      this.validateInvoiceData(llmData)
 
       return llmData
     } catch (error) {
       console.log("Error in LLM processing:", error)
+
+      // Se já é uma BadRequestException, relançar como está
+      if (error instanceof BadRequestException) {
+        throw error
+      }
+
+      // Para InternalServerErrorException, relançar como está
       if (error instanceof InternalServerErrorException) {
         throw error
       }
 
+      // Tratamento especial para limite de requisições da API
       if ((error as GoogleAIError)?.status === 429) {
         const delaySeconds = this.getRetryDelaySeconds(error as GoogleAIError)
 
         throw new InternalServerErrorException(
           `The AI service is temporarily at its request limit. ` +
-            `Please try again in about ${delaySeconds} seconds.`,
+          `Please try again in about ${delaySeconds} seconds.`,
         )
       }
 
@@ -86,6 +91,32 @@ export class LlmServiceImplementation implements LlmService {
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath)
       }
+    }
+  }
+
+  private validateInvoiceData(llmData: LlmInvoiceResponse): void {
+    if (!llmData.customerNumber || !llmData.referenceMonth) {
+      throw new BadRequestException(
+        "The uploaded file does not appear to be a valid electricity invoice. " +
+        "Required fields (customer number and reference month) were not found. " +
+        "Please ensure the file is a legitimate Brazilian electricity invoice.",
+      )
+    }
+
+    const hasEnergyData =
+      llmData.electricEnergy?.kwh ||
+      llmData.electricEnergy?.amount ||
+      llmData.energySceeeWithoutIcms?.kwh ||
+      llmData.energySceeeWithoutIcms?.amount ||
+      llmData.compensatedEnergyGdI?.kwh ||
+      llmData.compensatedEnergyGdI?.amount
+
+    if (!hasEnergyData) {
+      throw new BadRequestException(
+        "The uploaded file does not contain valid invoice data. " +
+        "No energy consumption or billing information could be extracted. " +
+        "Please verify that the PDF is a complete and valid electricity invoice.",
+      )
     }
   }
 

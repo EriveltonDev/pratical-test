@@ -3,6 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  BadRequestException,
 } from "@nestjs/common"
 import fs from "fs"
 import { ProcessedInvoice } from "src/llm/types/processed-invoice.type"
@@ -77,8 +78,10 @@ export class InvoicesServiceImplementation implements InvoicesService {
       return processedInvoice
     } catch (error) {
       console.log("Error processing PDF invoice:", error)
+
       if (
         error instanceof ConflictException ||
+        error instanceof BadRequestException ||
         error instanceof InternalServerErrorException
       ) {
         throw error

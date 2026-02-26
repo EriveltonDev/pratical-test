@@ -86,6 +86,10 @@ export class UploadController {
         throw error
       }
 
+      if (error instanceof BadRequestException) {
+        throw error
+      }
+
       throw new BadRequestException("Failed to process PDF file")
     }
   }
