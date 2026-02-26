@@ -46,7 +46,6 @@ export class InvoicesController {
     name: "customerNumber",
     required: false,
     description: "Filtro por número do cliente",
-    example: "123456",
   })
   @ApiQuery({
     name: "referenceMonth",
