@@ -109,8 +109,8 @@ npm run start:dev
 ```
 Rodando em produção (Docker)
 ```
-# construir imagem (ex.: usando Dockerfile.prod)
-docker build -f Dockerfile.prod -t lumi-prod:latest .
+# construir imagem
+docker build -f Dockerfile -t lumi-prod:latest .
 
 # rodar (defina DATABASE_URL externamente)
 docker run --rm -e DATABASE_URL="postgresql://postgres:postgres@db:5432/app_db" -p 3000:3000 lumi-prod:latest
@@ -146,7 +146,7 @@ npm run test:e2e
 
 Observações de deploy
 - Recomendo rodar `npx prisma migrate deploy` no pipeline/entrypoint antes de iniciar a aplicação em produção.
-- Há um `Dockerfile.prod` multi-stage na raiz para build + runtime.
+- Há um `Dockerfile` multi-stage na raiz para build + runtime.
 
 Contato
 - Repositório: código entregue como teste prático.
