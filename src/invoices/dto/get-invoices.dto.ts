@@ -13,8 +13,8 @@ export class GetInvoicesDto {
   customerNumber?: string
 
   @ApiProperty({
-    description: "Filtro opcional: mês de referência (YYYY-MM)",
-    example: "2026-02",
+    description: "Filtro opcional: mês de referência (e.g., FEV/2024)",
+    example: "FEV/2024",
     required: false,
   })
   @IsOptional()
@@ -23,18 +23,16 @@ export class GetInvoicesDto {
 
   @ApiProperty({
     description: "Número da página (padrão: 1)",
-    example: 1,
     required: false,
   })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  page?: number = 1
+  page?: number
 
   @ApiProperty({
     description: "Quantidade de registros por página (padrão: 10, máximo: 100)",
-    example: 10,
     required: false,
   })
   @IsOptional()
@@ -42,5 +40,5 @@ export class GetInvoicesDto {
   @IsInt()
   @Min(1)
   @Max(100)
-  limit?: number = 10
+  limit?: number
 }

@@ -20,7 +20,7 @@ describe("UploadController", () => {
   })
 
   it("uploadPdf - fluxo feliz chama facade e retorna resultado", async () => {
-    const processed = { customerNumber: "1", referenceMonth: "2026-02" }
+    const processed = { customerNumber: "1", referenceMonth: "FEV/2024" }
     mockInvoicesFacade.processPdf.mockResolvedValueOnce(processed)
 
     const file = { path: "/tmp/file.pdf" } as Express.Multer.File

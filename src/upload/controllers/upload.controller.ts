@@ -40,7 +40,7 @@ export class UploadController {
     schema: {
       example: {
         customerNumber: "123456",
-        referenceMonth: "2026-02",
+        referenceMonth: "FEV/2024",
         totalEnergyConsumptionKwh: 470.8,
         compensatedEnergyKwh: 50.0,
         totalAmountWithoutGd: 713.2,

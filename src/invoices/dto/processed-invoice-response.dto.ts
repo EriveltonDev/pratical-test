@@ -8,8 +8,8 @@ export class ProcessedInvoiceResponseDto {
   customerNumber: string
 
   @ApiProperty({
-    description: "Mês de referência da fatura (YYYY-MM)",
-    example: "2026-02",
+    description: "Mês de referência da fatura (e.g., FEV/2024)",
+    example: "FEV/2024",
   })
   referenceMonth: string
 

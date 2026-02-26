@@ -51,20 +51,17 @@ export class InvoicesController {
   @ApiQuery({
     name: "referenceMonth",
     required: false,
-    description: "Filtro por mês de referência (e.g., 2026-02)",
-    example: "2026-02",
+    description: "Filtro por mês de referência (e.g., FEV/2024)",
   })
   @ApiQuery({
     name: "page",
     required: false,
     description: "Número da página (padrão: 1)",
-    example: 1,
   })
   @ApiQuery({
     name: "limit",
     required: false,
     description: "Quantidade de registros por página (padrão: 10)",
-    example: 10,
   })
   @ApiResponse({
     status: 200,
@@ -74,7 +71,7 @@ export class InvoicesController {
         data: [
           {
             customerNumber: "123456",
-            referenceMonth: "2026-02",
+            referenceMonth: "FEV/2026",
             totalEnergyConsumptionKwh: 470.8,
             compensatedEnergyKwh: 50.0,
             totalAmountWithoutGd: 713.2,

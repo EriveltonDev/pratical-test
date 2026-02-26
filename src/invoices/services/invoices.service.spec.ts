@@ -27,7 +27,7 @@ describe("InvoicesServiceImplementation", () => {
   it("processPdf - calcula corretamente as agregações e salva no repositório", async () => {
     mockLlmService.extractPdfData.mockResolvedValueOnce({
       customerNumber: "123",
-      referenceMonth: "2026-02",
+      referenceMonth: "FEV/2024",
       electricEnergy: { kwh: 100, amount: 200 },
       energySceeeWithoutIcms: { kwh: 50, amount: 75 },
       compensatedEnergyGdI: { kwh: 10, amount: -20 },
@@ -51,7 +51,7 @@ describe("InvoicesServiceImplementation", () => {
     expect(mockInvoicesRepository.createInvoice).toHaveBeenCalledWith(
       expect.objectContaining({
         customerNumber: "123",
-        referenceMonth: "2026-02",
+        referenceMonth: "FEV/2024",
       }),
     )
   })
@@ -59,7 +59,7 @@ describe("InvoicesServiceImplementation", () => {
   it("processPdf - lança ConflictException quando invoice já existe", async () => {
     mockLlmService.extractPdfData.mockResolvedValueOnce({
       customerNumber: "123",
-      referenceMonth: "2026-02",
+      referenceMonth: "FEV/2024",
       electricEnergy: { kwh: 1, amount: 1 },
       energySceeeWithoutIcms: { kwh: 0, amount: 0 },
       compensatedEnergyGdI: { kwh: 0, amount: 0 },
