@@ -24,7 +24,6 @@ npm run docker:rebuild
 ### Acessar a API
 
 - **Local**: http://localhost:3000/api/docs (Swagger)
-- **Produção**: https://lumi-pratical-test.onrender.com/api/docs (Swagger)
 
 ---
 
